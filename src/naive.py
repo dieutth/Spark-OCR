@@ -1,5 +1,5 @@
-# @author dieutth
-# created on 17 Jan 2019
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 """
 this implementation process pdf files as they are.
@@ -38,20 +38,16 @@ if __name__ == "__main__":
 
         images = use_pdf2image_lib(pdf_file)
 
-        for image in images :
-            text_file = image_to_string(image)
-            page_number = images.index(image)
-            output_filename = (
-                "{output_path}/{filename}_page{page_number}.txt".format(
-                    output_path=OUTPUT_PATH,
-                    filename=filename,
-                    page_number=page_number,
-                )
-            )
-            print(output_filename)
-            with open(output_filename, "w") as file_output:
+        output_filename = "{output_path}/{filename}.txt".format(
+            output_path=OUTPUT_PATH,
+            filename=filename,
+        )
+
+        with open(output_filename, "w") as file_output:
+            for image in images:
+                text_file = image_to_string(image)
                 file_output.write(text_file)
 
     end = datetime.now()
 
-    print(end-start)
+    print(end - start)
