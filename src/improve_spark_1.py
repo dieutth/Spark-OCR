@@ -66,17 +66,16 @@ def save_to_disk(ouput_folder, converted):
 if __name__ == "__main__":
 
     conf = SparkConf()
-    # conf.set('spark.eventLog.enabled', 'true')
-    # conf.set('spark.eventLog.dir', 'file:/tmp/spark-events')
+    conf.set('spark.eventLog.enabled', 'true')
+    conf.set('spark.eventLog.dir', 'file:/tmp/spark-events')
     conf.set('spark.executor.memory', '4G')
     conf.set('spark.driver.memory', '12G')
 
     sc = SparkContext(conf=conf)
 
-    input_folder = '/Users/dieutth/temp/data/pdf_folder_single/'
-    # input_folder = '/Users/dieutth/temp/data/small_input/'
+    input_folder = '/Users/xizhang/workspace/experimentations/Spark-OCR/input/'
 
-    output_folder = "/Users/dieutth/temp/data/output/"
+    output_folder = "/Users/xizhang/workspace/experimentations/Spark-OCR/output-1/"
 
     start = datetime.now()
 
@@ -86,12 +85,12 @@ if __name__ == "__main__":
 
     converted = input_files.map(lambda x: convert_pdf_to_text(x[1]))
 
-    # converted.saveAsTextFile(output_folder)
-    c = converted.count()
+    converted.saveAsTextFile(output_folder)
+    # c = converted.count()
     # input_files = input_files.map(lambda x: x[0])
     # print(input_files.collect())
     # c = input_files.count()
-    print(c)
+    # print(c)
     end = datetime.now()
 
     print(end-start)

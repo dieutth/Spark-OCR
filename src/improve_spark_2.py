@@ -8,6 +8,7 @@ this implementation process pdf files as they are.
 
 import ntpath
 import os
+import re
 from datetime import datetime
 from pyspark import SparkConf, SparkContext
 from pytesseract import image_to_string
@@ -57,42 +58,33 @@ def split_pdf(pdf_file):
     pages.getPage()
 
 
-def write_to_file(output_folder, string):
-    filename = ntpath.basename(string[0])
+def map_file_name(input_file_name_content):
+    file_name = re.split("/", input_file_name_content[0])[-1]
+    split_result = re.split("_", file_name)
+    name = split_result[0]
+    part = split_result[1]
+    part_number = int(part[:-4])
+    content = input_file_name_content[1]
+    return (name, (part_number, content))
+
+
+def write_to_file(output_folder, filename, content):
     output_filepath = ntpath.join(output_folder, filename + '.txt')
-    text = '\n<===================================================>\n'.join(string[1:])
-
-
     with open(output_filepath, 'w') as f:
-        f.write(text)
+        f.write(content)
 
 
 def save_to_disk(ouput_folder, converted):
-    converted.foreach(lambda x: write_to_file(ouput_folder, x) )
+    converted.foreach(lambda x: write_to_file(ouput_folder, x[0], x[1]) )
 
 
+def merge_lists(d1, d2):
+    for item in d2:
+        d1.append(item)
+    return d1
 
-
-def cut_pdf(pdf):
-    reader = PdfFileReader(pdf)
-    nb_pages = reader.getNumPages()
-    files = []
-    for page_nb in range(nb_pages):
-        writer = PdfFileWriter()
-        writer.addPage(reader.getPage(page_nb))
-        fh, temp_filename = tempfile.mkstemp(dir='Users/dieutth/temp/temp/')
-        try:
-            with open(temp_filename, 'wb') as f:
-                writer.write(f)
-                f.flush()
-
-        finally:
-            file.append(temp_filename)
-            os.close(fh)
-            # os.remove(temp_filename)
-    return files
-
-
+def merge_string(list_of_tuple):
+    return '\n'.join('\n'.join(item[1]) for item in list_of_tuple)
 
 
 if __name__ == "__main__":
@@ -104,9 +96,9 @@ if __name__ == "__main__":
     conf.set('spark.driver.memory', '12G')
     sc = SparkContext(conf=conf)
 
-    input_folder = '/Users/dieutth/temp/data/pdf_folder_single/'
+    input_folder = '/Users/xizhang/workspace/experimentations/Spark-OCR/input/'
 
-    output_folder = "/Users/dieutth/temp/data/output/"
+    output_folder = "/Users/xizhang/workspace/experimentations/Spark-OCR/output-2/"
 
     start = datetime.now()
 
@@ -115,18 +107,26 @@ if __name__ == "__main__":
 
     input_files = sc.binaryFiles(input_folder).repartition(12)
 
-    splitted_pdf = input_files.flatMap(lambda pdf: cut_pdf(pdf[0][5:]))
+    # splitted_pdf = input_files.flatMap(lambda pdf: cut_pdf(pdf[0][5:]))
+    #
+    # splitted = splitted_pdf.flatMapValues(lambda x: convert_from_bytes(x, RESOLUTION))
 
-    splitted = splitted_pdf.flatMapValues(lambda x: convert_from_bytes(x, RESOLUTION))
+    mapped_rdd = input_files.map(lambda x: map_file_name(x))
+    # print(converted)
 
-    converted = splitted.mapValues(lambda x: image_to_string(x))
+    converted = mapped_rdd.mapValues(lambda ele: [(ele[0], convert_pdf_to_text(ele[1]))] )
 
-    # converted.saveAsTextFile(output_folder)
-    c = converted.count()
-    # input_files = input_files.map(lambda x: x[0])
-    # print(input_files.collect())
-    # c = input_files.count()
-    print(c)
+
+    merged_list = converted.reduceByKey(merge_lists)
+
+    sorted_list = merged_list.mapValues(lambda l: sorted(l, key=lambda tup: tup[0]))
+
+    merged_string = sorted_list.mapValues(lambda l: merge_string(l))
+
+
+    save_to_disk(output_folder, merged_string)
+    # write_to_file(output_folder, merged_string[0], merged_string.[1])
+
     end = datetime.now()
 
     print(end-start)
