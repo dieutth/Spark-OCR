@@ -1,1 +1,7 @@
 .idea/*
+resources/input/*
+resources/output/*
+src/__pycache__/*
+src/benchmark/__pycache__/*
+src/utils/__pycache__/*
+
