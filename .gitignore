@@ -1,3 +1,7 @@
 .idea/*
+resources/output/*.pdf
+src/__pycache__/*
+src/benchmark/__pycache__/*
+src/utils/__pycache__/*
 venv
 data/genrated
