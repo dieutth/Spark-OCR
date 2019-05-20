@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
-from pdf2image import convert_from_path
-from wand.image import Image
+from src.utils.pdf_to_image import use_pdf2image_lib, use_wand_lib
 
 import argparse
 
@@ -9,16 +8,6 @@ import argparse
 Comparing the 2 popular python libraries that convert pdf file to images: pdf2image and wand
 Use 2 libs to convert pdf to image with same default resolution = 300.
 """
-
-
-def use_pdf2image_lib(input_path):
-    image = convert_from_path(input_path, 300)
-    return image
-
-
-def use_wand_lib(input_path):
-    image = Image(filename=input_path, resolution=300)
-    return image
 
 
 def run_benchmark(input_files):
