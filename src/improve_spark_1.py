@@ -48,18 +48,14 @@ def convert_pdf_to_text(pdf_file):
     return pages
 
 
-def write_to_file(output_folder, string):
-    filename = ntpath.basename(string[0])
+def write_to_file(output_folder, filename, content):
     output_filepath = ntpath.join(output_folder, filename + '.txt')
-    text = '\n<===================================================>\n'.join(string[1:])
-
-
     with open(output_filepath, 'w') as f:
-        f.write(text)
+        f.write(content)
 
 
 def save_to_disk(ouput_folder, converted):
-    converted.foreach(lambda x: write_to_file(ouput_folder, x) )
+    converted.foreach(lambda x: write_to_file(ouput_folder, x[0], x[1]) )
 
 
 
@@ -73,7 +69,7 @@ if __name__ == "__main__":
 
     sc = SparkContext(conf=conf)
 
-    input_folder = '/Users/xizhang/workspace/experimentations/Spark-OCR/input/'
+    input_folder = '/Users/xizhang/workspace/experimentations/Spark-OCR/resources/input/'
 
     output_folder = "/Users/xizhang/workspace/experimentations/Spark-OCR/output-1/"
 

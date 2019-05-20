@@ -96,7 +96,7 @@ if __name__ == "__main__":
     conf.set('spark.driver.memory', '12G')
     sc = SparkContext(conf=conf)
 
-    input_folder = '/Users/xizhang/workspace/experimentations/Spark-OCR/input/'
+    input_folder = '/Users/xizhang/workspace/experimentations/Spark-OCR/resources/input/'
 
     output_folder = "/Users/xizhang/workspace/experimentations/Spark-OCR/output-2/"
 
