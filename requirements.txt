@@ -2,6 +2,6 @@ pdf2image==1.5.4
 Pillow==6.0.0
 py4j==0.10.7
 PyPDF2==1.26.0
-pyspark==2.4.3
+pyspark==3.2.2
 pytesseract==0.2.6
 Wand==0.5.3
